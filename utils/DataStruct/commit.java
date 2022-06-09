@@ -1,15 +1,28 @@
 package utils.DataStruct;
+import java.io.Serializable;
 import java.sql.Blob;
 import java.util.Date;
 import java.util.HashMap;
-
-public class commit {
+public class commit implements Serializable{
     private Date date;
     public static int global_commit_id = 0;
     private HashMap <Integer,commit> connections;
     private HashMap <Integer, Blob> files;
     private String message;
+    private commit prev;
     private int commit_id;
+    ///init
+    public commit(){
+        ///init commit
+        commit_id = global_commit_id; 
+        global_commit_id++;
+        date  = new Date(System.currentTimeMillis());
+        message = "initcommit";
+        prev = null;
+        connections = null;
+        files = null; 
+
+    }
     public commit(String mess, StageingArea file) {
         // commit_id = serialize the stageing area
         // for now commit will just incement... 
@@ -17,6 +30,7 @@ public class commit {
         global_commit_id++;
         date  = new Date(System.currentTimeMillis());
         message = mess;
+        prev = null;
         connections = null;
         files = null; 
     }

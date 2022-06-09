@@ -22,7 +22,8 @@ public class Main {
         String output = "checking";
         if (args.length > 0){
             command  = args[0];}
-        else{command = "None"; output = "Provide and input";}
+        else{command = "None"; output = "Please enter a command.";}
+        // TO-DO  : does .init exist ? arg[0] not init : unitalized git init. 
         switch(command){
         
         // Code to handle init
@@ -79,7 +80,12 @@ public class Main {
         //code to handle merge
             case "merge":
             break;
+
+            default:
+            output = "No command with that name exists.";
+            break;
         }
         System.out.println(output);
+        return;
     }
 }
