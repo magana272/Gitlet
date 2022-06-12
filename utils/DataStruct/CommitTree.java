@@ -3,37 +3,21 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import utils.CommitController;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
-//
-//
-//
-//
-// Inital branch is called main:
-// ... must create an inital commit not files 
-// ... 
-//
-//
-//
-//
-//
-//
-
 public class CommitTree implements Serializable  {
     private  HashMap<String, String> branches; //banch name and SHA-1
     private String currentBranch; // Branch name
+    public void setCurrentBranch(String currentBranch) {
+        this.currentBranch = currentBranch;
+    }
     private String stage; 
     public CommitTree() {
             branches = new HashMap<String,String>(); 
-            currentBranch = "main";
-            Commit initalCommit  =  new Commit();
-            branches.put(currentBranch, String.valueOf(initalCommit.hashCode()));
             stage = null;
-
     }
 
     public void addBranch(String branchName, String commit){
@@ -53,6 +37,17 @@ public class CommitTree implements Serializable  {
     public void setStage(String stagehash){
         this.stage = stagehash;
     }
+    public HashMap<String, String> getBranches() {
+        return branches;
+    }
+
+    public void setBranches(HashMap<String, String> branches) {
+        this.branches = branches;
+    }
+    public String getCurrentBranch() {
+        return currentBranch;
+    }
+
     //Directory Structure mapping to references to blobs and other trees
     @Override
     public int hashCode() {

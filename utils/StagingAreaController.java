@@ -9,6 +9,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import utils.DataStruct.Blob;
 import utils.DataStruct.StageingArea;
 
 public abstract class StagingAreaController {
@@ -45,5 +46,10 @@ public abstract class StagingAreaController {
             System.out.println("Couldn't do that");
         }
     }
+    public static HashMap<String, Blob> getStageBlobs(StageingArea area){ 
+        return area.getStage();
+
+    }
+
         
     }      

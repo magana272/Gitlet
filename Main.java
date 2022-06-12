@@ -6,7 +6,8 @@ public class Main {
         String[] commands = new String[]{"init","add","commit","rm","log","global-log","find","status","checkout","branch","rm-branch","reset","merge"}; 
         String output = "checking";
         if (args.length > 0){
-            command  = args[0];}
+            command  = args[0];
+            System.out.println(command);}
         else{command = "None"; output = "Please enter a command.";}
         // TO-DO  : does .init exist ? arg[0] not init : unitalized git init. 
         switch(command){
@@ -24,7 +25,11 @@ public class Main {
             break;
         //  code to handle commit 
             case "commit":
-
+            /// quick checks 
+            /// args[1] == -m 
+            /// arg [2] == "Some String"
+            /// additionally we want wanto to make sure .gitlet/Stagedfile 
+            output = CommitTreeController.commit(args[2]);
             break;
 
         // code to handle rm

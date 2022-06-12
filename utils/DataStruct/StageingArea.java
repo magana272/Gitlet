@@ -14,7 +14,6 @@ public class StageingArea implements Serializable {
     private HashMap<String,Blob> stagearea;
     public StageingArea(){
         HashMap<String,Blob> stagearea = new HashMap<String,Blob>();
-        //stagearea.put("inital", new Blob());
     }
     public int stage(String file){
         // check if staged if not and exist

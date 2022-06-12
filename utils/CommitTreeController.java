@@ -9,7 +9,11 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
+import utils.DataStruct.Blob;
+import utils.DataStruct.Commit;
 import utils.DataStruct.CommitTree;
 import utils.DataStruct.StageingArea;
 
@@ -39,6 +43,8 @@ public abstract class CommitTreeController implements Serializable {
             return "File Staged";
         }
         else{
+            /// if the file the same in current commit ? 
+            /// Blob.getblob()
             StageingArea stageArea = StagingAreaController.getStageingArea();
             StagingAreaController.stagefile(stageArea , filename);
             mytree.setStage(String.valueOf(stageArea.hashCode()));
@@ -47,9 +53,12 @@ public abstract class CommitTreeController implements Serializable {
         }
     }
     private static void createTree() {
-
         new File(theInitPath).mkdir();
         CommitTree newCommitTree  = new CommitTree();
+        Commit inital_commit = CommitController.createCommit();
+        newCommitTree.addBranch("main", String.valueOf(inital_commit.hashCode()));
+        newCommitTree.setCurrentBranch("main");
+        CommitController.saveCommit(inital_commit);
         saveTree(newCommitTree);
 
     }
@@ -80,5 +89,24 @@ public abstract class CommitTreeController implements Serializable {
         }
         return null;
     }
+    public static String commit(String messString){
+        // we check if staging area existed in main
+        String currentbranch;
+        String currentcommit;
+        CommitTree mytree;
+        HashMap<String,Blob> stage;
+        StageingArea area = StagingAreaController.getStageingArea();
+        Commit newcommit = new Commit();
+        mytree = getTree();
+        currentbranch = mytree.getCurrentBranch();
+        currentcommit = mytree.getBranches().get(currentbranch);
+        newcommit.setPrev(currentcommit);
+        ///
+        stage = StagingAreaController.getStageBlobs(area);
+        CommitController.setblobs(newcommit ,(HashMap<String, Blob>) stage.clone());
+        mytree.getBranches().put(currentbranch, String.valueOf(newcommit.hashCode()));
+        return "commit Succsssfull";
+
         
     }
+}

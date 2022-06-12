@@ -1,21 +1,21 @@
 package utils;
+import utils.DataStruct.Blob;
 import utils.DataStruct.Commit;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 public class CommitController {
     /// Main Idea is we are moving files from staging area to an actual commit and adding it to commit tree
     public static Commit createCommit(){
-
         Commit commit = new utils.DataStruct.Commit();
         return commit;
     }
-    public void saveCommit(Commit commit){
+    public static void saveCommit(Commit commit){
         String filename =  String.valueOf(commit.hashCode());
         File outFile = new File(".gitlet"+"/"+filename);
         try {
@@ -41,5 +41,8 @@ public class CommitController {
             System.out.println("No Commit");
         }
         return null;
+    }
+    public static void setblobs( Commit commit, HashMap<String,Blob> filesCommited){
+        commit.setBlobs(filesCommited);
     }
 }  

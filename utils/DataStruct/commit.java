@@ -1,6 +1,6 @@
 package utils.DataStruct;
 import java.io.Serializable;
-import java.sql.Blob;
+import utils.DataStruct.Blob;
 import java.util.Date;
 import java.util.HashMap;
 public class Commit implements Serializable{
@@ -13,31 +13,27 @@ public class Commit implements Serializable{
     //
     //
     private Date date;
-    private HashMap <Integer,Commit> connections;
-    private HashMap <Integer, Blob> files;
+    private HashMap <String, Blob> blobs;
     private String message;
-    private Commit prev;
-    private String prev_id; 
-    private String commit_id; // does this need to know it's own ID ?
+    private String prev;
+    private StageingArea area;
     ///init
     public Commit(){
         ///init commit
         date  = new Date(System.currentTimeMillis());
         message = "initcommit";
         prev = null;
-        connections = null;
-        files = null; 
+        blobs= null; 
+        area = null;
 
     }
-    public Commit(String mess, StageingArea file) {
+    public Commit(String mess) {
         // commit_id = serialize the stageing area
         // for now commit will just incement... 
-        commit_id = null; 
         date  = new Date(System.currentTimeMillis());
         message = mess;
         prev = null;
-        connections = null;
-        files = null; 
+        HashMap <String, Blob> blobs = new HashMap<String, Blob>(); 
     }
     public Date getDate() {
         return date;
@@ -45,29 +41,34 @@ public class Commit implements Serializable{
     public void setDate(Date date) {
         this.date = date;
     }
-    public HashMap<Integer,Commit> getConnections() {
-        return connections;
+    public HashMap <String, Blob> getblobs() {
+        return blobs;
     }
-    public void setConnections(HashMap<Integer, Commit> connections) {
-        this.connections = connections;
+    /// Might not need this ... might be able to just set blobs to blobs = stages //
+    public void appendblob(String filename, Blob blob) {
+        this.blobs.put(filename,blob);
     }
-    public HashMap<Integer, Blob> getFiles() {
-        return files;
-    }
-    public void setFiles(HashMap<Integer, Blob> files) {
-        this.files = files;
-    }
-    public String getCommit_id() {
-        return commit_id;
-    }
-    public void setCommit_id(String commit_id) {
-        this.commit_id = commit_id;
-    }
+
     public String getMessage() {
         return message;
     }
     public void setMessage(String message) {
         this.message = message;
+    }
+    public String getPrev() {
+        return prev;
+    }
+    public void setPrev(String prev) {
+        this.prev = prev;
+    }
+    public void setArea(StageingArea stage){
+        this.area = stage;
+    }
+    public HashMap<String, Blob> getBlobs() {
+        return blobs;
+    }
+    public void setBlobs(HashMap<String, Blob> filesCommited) {
+        this.blobs = filesCommited;
     }
     //Combination of log messges,commit date author,
     // a reference to a tree and references to parent commits 
