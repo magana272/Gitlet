@@ -1,10 +1,11 @@
 package utils;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-public abstract class init {
-    static String theInitPath = "./.gitlet";
-    public static String INIT(){
+
+import java.io.Serializable;
+
+public abstract class CommitTreeController implements Serializable {
+    
+    public static String init(){
+        static String theInitPath = "./.gitlet";
         if (!new File(theInitPath).exists()){
             create();
             return "File create";
@@ -19,5 +20,6 @@ public abstract class init {
         new File(theInitPath).mkdir();
         commit.commitFinal("Init");
     }
-    
+
+    }
 }

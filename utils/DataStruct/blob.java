@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class blob implements Serializable {
+public class Blob implements Serializable {
     private String fileName;
     private String fileConents;
     private Path filePath;
-    public blob(String filename) {
+    public Blob(String filename) {
     }
     //essentially the contents of a tree
     

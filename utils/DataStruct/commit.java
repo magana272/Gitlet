@@ -3,16 +3,17 @@ import java.io.Serializable;
 import java.sql.Blob;
 import java.util.Date;
 import java.util.HashMap;
-public class commit implements Serializable{
+public class Commit implements Serializable{
     private Date date;
     public static int global_commit_id = 0;
-    private HashMap <Integer,commit> connections;
+    private HashMap <Integer,Commit> connections;
     private HashMap <Integer, Blob> files;
     private String message;
-    private commit prev;
+    private Commit prev;
+    private String prev_id;
     private int commit_id;
     ///init
-    public commit(){
+    public Commit(){
         ///init commit
         commit_id = global_commit_id; 
         global_commit_id++;
@@ -23,7 +24,7 @@ public class commit implements Serializable{
         files = null; 
 
     }
-    public commit(String mess, StageingArea file) {
+    public Commit(String mess, StageingArea file) {
         // commit_id = serialize the stageing area
         // for now commit will just incement... 
         commit_id = global_commit_id; 
@@ -40,10 +41,10 @@ public class commit implements Serializable{
     public void setDate(Date date) {
         this.date = date;
     }
-    public HashMap<Integer, commit> getConnections() {
+    public HashMap<Integer,Commit> getConnections() {
         return connections;
     }
-    public void setConnections(HashMap<Integer, commit> connections) {
+    public void setConnections(HashMap<Integer, Commit> connections) {
         this.connections = connections;
     }
     public HashMap<Integer, Blob> getFiles() {
