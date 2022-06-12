@@ -1,20 +1,5 @@
-import utils.add;  //1
-import utils.init; //2
-import utils.commit; //3
-import utils.rm; //4
-import utils.log; //5
-import utils.global_log; //6
-import utils.find; //7
-import utils.status; //8
-import utils.checkout; //9
-import utils.branch; //10
-import utils.rm_branch;//11
-import utils.reset;//12
-import utils.merge; //13
-
-
-
-
+import utils.CommitTreeController;
+import utils.StagingAreaController;
 public class Main {
     public static void main(String[] args) {
         String command;
@@ -29,11 +14,13 @@ public class Main {
         // Code to handle init
         // 
             case "init":
-                output =  utils.init.INIT();
+                output = CommitTreeController.init();
             break;
         // code to handle add 
             case "add":
-
+                // check if file in curr dir 
+                output = CommitTreeController.add(args[1]);
+                // else sorry
             break;
         //  code to handle commit 
             case "commit":
