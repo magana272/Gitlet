@@ -53,7 +53,7 @@ public class BlobController {
             String stagePath = ".gitlet/stage/";
             if(! new File(stagePath).exists()){ new File(stagePath).mkdir();}
             try {
-                filename = sha1(blob);
+                filename = sha1(blob.getFileConents());
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
