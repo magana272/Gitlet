@@ -2,38 +2,37 @@ package utils.DataStruct;
 import java.io.Serializable;
 import java.util.HashMap;
 // The stageing is a commit that is not appended to the tree... can still add files...
-//
-//
-//
-//
-//
-//
-//
-//
+
 public class StageingArea implements Serializable {
-    private HashMap<String,Blob> stagearea;
+    private HashMap<String,String> stagearea;
     public StageingArea(){
-        HashMap<String,Blob> stagearea = new HashMap<String,Blob>();
+        this.stagearea = new HashMap<String,String>();
     }
-    public int stage(String file){
+    public int stage(String file, String hash){
         // check if staged if not and exist
-        Blob statgedblob  =  new Blob(file);
-        HashMap<String,Blob> stagearea = this.getStage();
-        stagearea.put(file,statgedblob);
+        HashMap<String,String> stagearea = this.getStage();
+        this.stagearea.put(file, hash);
         return 0;
     }
     public int unstage(String file){
         //check if staged
         //if staged 
-        this.stagearea.remove(file);
-        return 0; 
+        if (this.stagearea.containsKey(file)){
+            this.stagearea.remove(file);
+            return 0;
+        }
+        else{
+            return 1;
+        }
+       
+       
     }
-    public HashMap<String, Blob> getStage(){
+    public HashMap<String,String> getStage(){
         return this.stagearea;
 
     }
     public void setNewStage(){
-        this.stagearea = new HashMap<String,Blob>();
+        this.stagearea = new HashMap<String,String>();
     }
     @Override
     public int hashCode() {

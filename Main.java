@@ -29,11 +29,21 @@ public class Main {
             /// args[1] == -m 
             /// arg [2] == "Some String"
             /// additionally we want wanto to make sure .gitlet/Stagedfile 
-            output = CommitTreeController.commit(args[2]);
+            if(args.length != 3 ){
+                output = "Wrong number of arguments";
+            }
+            if(!args[1].equals("-m")){
+                System.out.println(args[1]);
+                output = "Please enter a commit message.";
+            }
+            else{
+                output = CommitTreeController.commit(args[2]);
+            }
             break;
 
         // code to handle rm
             case "rm":
+            output = CommitTreeController.rm(args[1]);
             break;
 
         // code to handle log 

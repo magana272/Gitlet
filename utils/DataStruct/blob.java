@@ -14,17 +14,35 @@ public class Blob implements Serializable {
     private String fileConents;
     private Date date;
     public Blob(){
-        date  = new Date(System.currentTimeMillis());
-        fileConents = null;}
+        this.date  = new Date(System.currentTimeMillis());
+        this.fileConents = null;}
     public Blob(String filename) {
-        fileName = filename;
-        date  = new Date(System.currentTimeMillis());
-        fileConents = null;
+        this.fileName = filename;
+        this.date  = new Date(System.currentTimeMillis());
         try {
-            fileConents = String.join(System.lineSeparator(),Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8));
+            this.fileConents = String.join(System.lineSeparator(),Files.readAllLines(Paths.get(fileName), StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
+            this.fileConents = null;
         }
+    }
+    public String getFileName() {
+        return fileName;
+    }
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    public String getFileConents() {
+        return fileConents;
+    }
+    public void setFileConents(String fileConents) {
+        this.fileConents = fileConents;
+    }
+    public Date getDate() {
+        return date;
+    }
+    public void setDate(Date date) {
+        this.date = date;
     }
     //essentially the contents of a tree
     @Override

@@ -14,10 +14,8 @@ public class CommitTree implements Serializable  {
     public void setCurrentBranch(String currentBranch) {
         this.currentBranch = currentBranch;
     }
-    private String stage; 
     public CommitTree() {
-            branches = new HashMap<String,String>(); 
-            stage = null;
+            this.branches = new HashMap<String,String>(); 
     }
 
     public void addBranch(String branchName, String commit){
@@ -31,21 +29,15 @@ public class CommitTree implements Serializable  {
         ///
         return "SHA-1 of split point";
     }
-    public String getStage(){
-        return this.stage;
-    }
-    public void setStage(String stagehash){
-        this.stage = stagehash;
-    }
     public HashMap<String, String> getBranches() {
-        return branches;
+        return this.branches;
     }
 
     public void setBranches(HashMap<String, String> branches) {
         this.branches = branches;
     }
     public String getCurrentBranch() {
-        return currentBranch;
+        return this.currentBranch;
     }
 
     //Directory Structure mapping to references to blobs and other trees

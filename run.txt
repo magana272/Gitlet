@@ -1,2 +1,0 @@
-rm -r .gitlet && rm ./*.class utils/*.class utils/DataStruct/*.class 
-javac ./*.java utils/*.java utils/DataStruct/*.java && java Main init

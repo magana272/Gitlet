@@ -13,68 +13,60 @@ public class Commit implements Serializable{
     //
     //
     private Date date;
-    private HashMap <String, Blob> blobs;
+    private HashMap <String, String > blobs;// filename and hash
     private String message;
     private String prev;
     private StageingArea area;
     ///init
     public Commit(){
         ///init commit
-        date  = new Date(System.currentTimeMillis());
-        message = "initcommit";
-        prev = null;
-        blobs= null; 
-        area = null;
-
+        this.date  = new Date(System.currentTimeMillis());
+        this.message = "initcommit";
+        this.prev = null;
+        this.blobs= null; 
     }
     public Commit(String mess) {
         // commit_id = serialize the stageing area
         // for now commit will just incement... 
-        date  = new Date(System.currentTimeMillis());
-        message = mess;
-        prev = null;
-        HashMap <String, Blob> blobs = new HashMap<String, Blob>(); 
+        this.date  = new Date(System.currentTimeMillis());
+        this.message = mess;
+        this.prev = null;
+        this.blobs = new HashMap<String, String>(); 
     }
     public Date getDate() {
-        return date;
+        return this.date;
     }
     public void setDate(Date date) {
         this.date = date;
     }
-    public HashMap <String, Blob> getblobs() {
-        return blobs;
+    public HashMap <String, String> getblobs() {
+        return this.blobs;
     }
     /// Might not need this ... might be able to just set blobs to blobs = stages //
-    public void appendblob(String filename, Blob blob) {
+    public void appendblob(String filename, String blob) {
         this.blobs.put(filename,blob);
     }
 
     public String getMessage() {
-        return message;
+        return this.message;
     }
     public void setMessage(String message) {
         this.message = message;
     }
     public String getPrev() {
-        return prev;
+        return this.prev;
     }
     public void setPrev(String prev) {
         this.prev = prev;
     }
-    public void setArea(StageingArea stage){
-        this.area = stage;
+    public HashMap<String, String> getBlobs() {
+        return this.blobs;
     }
-    public HashMap<String, Blob> getBlobs() {
-        return blobs;
-    }
-    public void setBlobs(HashMap<String, Blob> filesCommited) {
+    public void setBlobs(HashMap<String, String> filesCommited) {
         this.blobs = filesCommited;
     }
     //Combination of log messges,commit date author,
     // a reference to a tree and references to parent commits 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
+
     
 }
