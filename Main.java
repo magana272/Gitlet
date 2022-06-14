@@ -7,7 +7,7 @@ public class Main {
         String output = "checking";
         if (args.length > 0){
             command  = args[0];
-            System.out.println(command);}
+            }
         else{command = "None"; output = "Please enter a command.";}
         // TO-DO  : does .init exist ? arg[0] not init : unitalized git init. 
         switch(command){
@@ -33,7 +33,6 @@ public class Main {
                 output = "Wrong number of arguments";
             }
             if(!args[1].equals("-m")){
-                System.out.println(args[1]);
                 output = "Please enter a commit message.";
             }
             else{
@@ -48,15 +47,16 @@ public class Main {
 
         // code to handle log 
             case "log":
-
-            break;
-        // code to handle global-log
+                CommitTreeController.log();
+                return;
+            // code to handle global-log
             case "global-log":
 
             break;
 
         //code to handle find
             case  "find":
+            CommitTreeController.find(args[1]);
             break;
 
         //code to handle status

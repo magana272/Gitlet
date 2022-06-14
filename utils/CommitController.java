@@ -48,10 +48,9 @@ public class CommitController {
         try {
             filename = sha1_contents(commit.getBlobs());
             outFile = new File(commitpath+"/"+filename);
-            System.out.println(outFile);
         } catch (Exception e) {
-            e.printStackTrace();
-            return;
+            filename = "init";
+            outFile = new File(commitpath+"/"+filename);
         }
         try {
             ObjectOutputStream out =
@@ -66,7 +65,7 @@ public class CommitController {
     public static Commit getCommit(String hashcode){
         //should return commit
         Commit obj;
-        File inFile = new File("./.gitlet/commit"+hashcode);
+        File inFile = new File(".gitlet/Commit/"+hashcode);
         try {
             ObjectInputStream inp =
                 new ObjectInputStream(new FileInputStream(inFile));
@@ -74,7 +73,6 @@ public class CommitController {
             inp.close();
             return obj;
         } catch (IOException | ClassNotFoundException excp) {
-            System.out.println("No Commit");
         }
         return null;
     }

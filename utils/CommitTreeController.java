@@ -12,6 +12,9 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import utils.DataStruct.Blob;
 import utils.DataStruct.Commit;
 import utils.DataStruct.CommitTree;
@@ -23,7 +26,7 @@ public abstract class CommitTreeController implements Serializable {
     public static String init(){
         if (!new File(theInitPath).exists()){
             createTree();
-            return "File create";
+            return "";
         }
         else{
             Path path = Paths.get(theInitPath);
@@ -36,7 +39,7 @@ public abstract class CommitTreeController implements Serializable {
             StageingArea stageArea  = StagingAreaController.createStageingArea();
             StagingAreaController.stagefile(stageArea , filename);
             StagingAreaController.saveStageingArea(stageArea);
-            return "File Staged";
+            return "";
         }
         else{
             /// if the file the same in current commit ? 
@@ -44,7 +47,7 @@ public abstract class CommitTreeController implements Serializable {
             StageingArea stageArea = StagingAreaController.getStageingArea();
             StagingAreaController.stagefile(stageArea , filename);
             StagingAreaController.saveStageingArea(stageArea);
-            return "File Staged";
+            return "";
         }
     }
     private static void createTree() {
@@ -52,13 +55,14 @@ public abstract class CommitTreeController implements Serializable {
         CommitTree newCommitTree  = new CommitTree();
         Commit inital_commit = CommitController.createCommit();
         try {
-            newCommitTree.addBranch("main", sha1(inital_commit));
+            newCommitTree.addBranch("main", "init");
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return;
         }
         newCommitTree.setCurrentBranch("main");
+        inital_commit.setMessage("Init");
         CommitController.saveCommit(inital_commit);
         saveTree(newCommitTree);
 
@@ -86,7 +90,6 @@ public abstract class CommitTreeController implements Serializable {
             inp.close();
             return obj;
         } catch (IOException | ClassNotFoundException excp) {
-            System.out.println("No tree");
         }
         return null;
     }
@@ -98,27 +101,26 @@ public abstract class CommitTreeController implements Serializable {
         StageingArea area = StagingAreaController.getStageingArea();
         if (area != null){
             Commit newcommit = new Commit(messString);
+            System.out.println("mess : " + newcommit.getMessage());
             mytree = getTree();
             currentbranch = mytree.getCurrentBranch();
             currentcommit = mytree.getBranches().get(currentbranch);
-            System.out.println("Current Commit:");
-            System.out.println(currentcommit);
             newcommit.setPrev(currentcommit);
-            System.out.println("New commit");
-            System.out.println(newcommit);
             stage = StagingAreaController.getStageBlobs(area);
             CommitController.setblobs(newcommit ,(HashMap<String, String>) stage);
+            newcommit.setMessage(messString);
             try {
                 mytree.getBranches().put(currentbranch, CommitController.sha1_contents(newcommit.getBlobs()));
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return "Failed";
             }
             CommitController.saveCommit(newcommit);
             StagingAreaController.removeStageingArea();
+            currentbranch = mytree.getCurrentBranch();
+            currentcommit = mytree.getBranches().get(currentbranch);
             CommitTreeController.saveTree(mytree);
-            return "commit Succsssfull";
+            return "";
         }
         else{
             return "No changes added to the commit";
@@ -148,16 +150,16 @@ public abstract class CommitTreeController implements Serializable {
         }
         if(CommitController.getCommit(mytree.getBranches().get(mytree.getCurrentBranch())).getblobs().containsKey(Filename)){
             File obj = new File("./"+Filename);
-            // removeFromDir = obj.delete();
-            System.out.println(CommitController.getCommit(mytree.getCurrentBranch()).getblobs().containsKey(Filename));
+            removeFromDir = obj.delete();
+            //System.out.println(CommitController.getCommit(mytree.getCurrentBranch()).getblobs().containsKey(Filename));
         }
         if (removedFromstage == 0 && removeFromDir == true){
             return "No reason to remove the file.";
         }
-        return Filename + "removed";
+        return Filename + " removed";
 
     }
-    public static String log(){
+    public static void log(){
         //Starting at the current head commit, display information 
         //about each commit backwards along the commit tree until the initial commit, 
         //following the first parent commit links, ignoring any second parents found 
@@ -165,17 +167,48 @@ public abstract class CommitTreeController implements Serializable {
         //This set of commit nodes is called the commit’s history. For every node in this history, 
         //the information it should display is the commit id, the time the commit was made, and the
         // commit message. Here is an example of the exact format it should follow:
-        return "log command";
-
-
+        Commit currCommit;
+        CommitTree myTree;
+        String currCommitID; 
+        myTree  = getTree();
+        currCommit = CommitController.getCommit(myTree.getBranches().get(myTree.getCurrentBranch()));
+        currCommitID = myTree.getBranches().get(myTree.getCurrentBranch());
+        while(currCommitID != null){
+            System.out.println("commit "+ currCommitID);
+            System.out.println(currCommit.getDate());
+            System.out.println("\t"+ currCommit.getMessage());
+            System.out.println();
+            currCommitID = currCommit.getPrev();
+            currCommit = CommitController.getPrevCommit(currCommit);
+        }
+        return;
     }
-    public static String find(){
+    public static String find(String mess){
+        Commit currCommit;
+        CommitTree myTree;
+        String currCommitID; 
+        myTree  = getTree();
+        Set<String> commitids =  new HashSet<String>();
+        for(Object branch : myTree.getBranches().keySet().toArray()){
+            currCommitID = myTree.getBranches().get(branch);
+            currCommit = CommitController.getCommit(currCommitID);
+            while(currCommit != null){
+                if(currCommit.getMessage().compareTo(mess) == 0 ){
+                    commitids.add(currCommitID);
+                }
+                currCommitID = currCommit.getPrev();
+                currCommit = CommitController.getPrevCommit(currCommit);
+            }
+        }
+        for(String id : commitids ){
+            System.out.println(id);
+        }
         //Prints out the ids of all commits that have the given
         // commit message, one per line. If there are multiple such commits,
         // it prints the ids out on separate lines. The commit message is a single operand;
         // to indicate a multiword message, put the operand in quotation marks, as for the commit 
         //command below. Hint: the hint for this command is the same as the one for global-log
-        return "find command";
+        return "";
     }
     public static String status(){
         // Displays what branches currently exist, and marks the current

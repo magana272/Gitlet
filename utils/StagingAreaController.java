@@ -40,7 +40,6 @@ public abstract class StagingAreaController {
             inp.close();
             return obj;
         } catch (IOException | ClassNotFoundException excp) {
-            System.out.println("No Stageingarea");
         }
         return null;
     }
