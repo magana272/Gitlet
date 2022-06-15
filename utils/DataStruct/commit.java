@@ -39,9 +39,6 @@ public class Commit implements Serializable{
     public void setDate(Date date) {
         this.date = date;
     }
-    public HashMap <String, String> getblobs() {
-        return this.blobs;
-    }
     /// Might not need this ... might be able to just set blobs to blobs = stages //
     public void appendblob(String filename, String blob) {
         this.blobs.put(filename,blob);

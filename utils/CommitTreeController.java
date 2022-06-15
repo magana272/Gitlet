@@ -7,13 +7,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.print.DocFlavor.STRING;
+import javax.swing.tree.TreeNode;
 
 import utils.DataStruct.Blob;
 import utils.DataStruct.Commit;
@@ -120,6 +126,7 @@ public abstract class CommitTreeController implements Serializable {
             StagingAreaController.removeStageingArea();
             currentbranch = mytree.getCurrentBranch();
             currentcommit = mytree.getBranches().get(currentbranch);
+            mytree.newRemovefile();
             CommitTreeController.saveTree(mytree);
             return "";
         }
@@ -146,11 +153,12 @@ public abstract class CommitTreeController implements Serializable {
         if(curcommit== null){
             return "Gitlet not Initalized";
         }
-        if(CommitController.getCommit(mytree.getBranches().get(mytree.getCurrentBranch())).getblobs() == null){
+        if(CommitController.getCommit(mytree.getBranches().get(mytree.getCurrentBranch())).getBlobs() == null){
             return "No reason to remove the file.";
         }
-        if(CommitController.getCommit(mytree.getBranches().get(mytree.getCurrentBranch())).getblobs().containsKey(Filename)){
+        if(CommitController.getCommit(mytree.getBranches().get(mytree.getCurrentBranch())).getBlobs().containsKey(Filename)){
             File obj = new File("./"+Filename);
+            mytree.putRemovefile(Filename);
             removeFromDir = obj.delete();
             //System.out.println(CommitController.getCommit(mytree.getCurrentBranch()).getblobs().containsKey(Filename));
         }
@@ -211,7 +219,7 @@ public abstract class CommitTreeController implements Serializable {
         //command below. Hint: the hint for this command is the same as the one for global-log
         return "";
     }
-    public static String status(){
+    public static void status(){
         // Displays what branches currently exist, and marks the current
         // branch with a *. Also displays what files have been staged for
         // addition or removal. An example of the exact format it
@@ -235,8 +243,82 @@ public abstract class CommitTreeController implements Serializable {
         === Untracked Files ===
         random.stuff
          */
-        return "status command";
+        CommitTree mytree = getTree();
+        String curbran = mytree.getCurrentBranch();
+        StageingArea myStageingArea = StagingAreaController.getStageingArea();
+        
+        System.out.println("=== Branches ===");
+        System.out.println("*"+ curbran);
+        for(Object treename : mytree.getBranches().keySet().toArray()){
+            if (!treename.equals(curbran)){
+                System.out.println(treename);
+            }
+        }
+        System.out.println("=== Staged Files ===");
+        if (myStageingArea != null){
+            HashMap<String,String> stagedfile = myStageingArea.getStage();
+            if(stagedfile != null){
+                    for(Object file : stagedfile.keySet().toArray()){
+                        System.out.println(file);
+                }
+            }
+        }
+
+        System.out.println("=== Removed Files ===");
+        for(Object removedfile : mytree.getRemovefile()){
+                System.out.println(removedfile);
+            }
+        ///Files in previous commit: test.txt 
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        Commit currCommit = CommitController.getCommit(mytree.getBranches().get(curbran));
+        if (currCommit.getBlobs()!=null){
+            for(Object filename : currCommit.getBlobs().keySet().toArray()){
+                if (! new File("./"+filename).exists()){
+                    System.out.println(filename + " (Deleted)");
+                };
+             try {
+                  String currcontent = BlobController.sha1(String.join(System.lineSeparator(),Files.readAllLines(Paths.get("./"+filename), StandardCharsets.UTF_8)));
+                  if(!currcontent.equals(currCommit.getBlobs().get(filename))){
+                     System.out.println(filename +"(Modified)");}
+             } catch (IOException e) {
+                 // TODO Auto-generated catch block
+                 
+             } catch (Exception e) {
+                 // TODO Auto-generated catch block
+             }
+     
+         }
+        }
+        File folder = new File("./");
+        ArrayList<String> files_curr  = listFilesForFolder(folder);
+        System.out.println("=== Untracked Files ===");
+        if(currCommit.getBlobs()==null && myStageingArea == null){
+            for(String file: files_curr){
+                        System.out.println(file);
+            }
+        }
+        if(myStageingArea != null){
+            HashMap<String,String> stagedfile = myStageingArea.getStage();
+            stagedfile= myStageingArea.getStage();
+            for(String file: files_curr){
+                    if (!stagedfile.keySet().contains(file)){
+                        System.out.println(file);
+                    }
+                }
+            }
     }
+
+    public static ArrayList<String> listFilesForFolder(File folder) {
+        ArrayList<String> files = new ArrayList<String>();
+        for (File fileEntry : folder.listFiles()) {
+                if(!fileEntry.getName().contains(".java") && !fileEntry.getName().contains(".class") && !fileEntry.getName().contains(".gitlet") && !fileEntry.getName().contains(".git") && !fileEntry.isDirectory())
+                files.add(fileEntry.getName());
+        }
+        return files;
+    }
+    
+    
+
     public static String checkout(){
         /*
          * 

@@ -5,3 +5,4 @@ java Main add test.txt
 java Main commit -m "test"
 java Main log 
 java Main find test
+java Main status

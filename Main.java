@@ -61,6 +61,7 @@ public class Main {
 
         //code to handle status
             case "status":
+            CommitTreeController.status();
             break;
 
         // code to handle checkout 
@@ -87,7 +88,6 @@ public class Main {
             output = "No command with that name exists.";
             break;
         }
-        System.out.println(output);
         return;
     }
 }

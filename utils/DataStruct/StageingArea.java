@@ -12,7 +12,7 @@ public class StageingArea implements Serializable {
     }
     public int stage(String file, String hash){
         // check if staged if not and exist
-        HashMap<String,String> stagearea = this.getStage();
+        stagearea = this.getStage();
         this.stagearea.put(file, hash);
         return 0;
     }
@@ -34,8 +34,6 @@ public class StageingArea implements Serializable {
         else{
             return 1;
         }
-       
-       
     }
     public HashMap<String,String> getStage(){
         return this.stagearea;
