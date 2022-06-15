@@ -24,7 +24,7 @@ public class BlobController {
             e.printStackTrace();
             return;
         }
-        File outFile = new File(".gitlet"+"/blob/"+filename);
+        File outFile = new File(".gitlet"+"/Blob/"+filename);
         try {
             ObjectOutputStream out =
                 new ObjectOutputStream(new FileOutputStream(outFile));
@@ -36,7 +36,7 @@ public class BlobController {
     }
     public Blob getBlob(String hashcode){
         Blob obj;
-            File inFile = new File("./.gitlet/blob/"+ hashcode);
+            File inFile = new File("./.gitlet/Blob/"+ hashcode);
             try {
                 ObjectInputStream inp =
                     new ObjectInputStream(new FileInputStream(inFile));
@@ -50,7 +50,7 @@ public class BlobController {
         }    
         public static void stageBlob(Blob blob){
             String filename;
-            String stagePath = ".gitlet/stage/";
+            String stagePath = ".gitlet/Stage/";
             if(! new File(stagePath).exists()){ new File(stagePath).mkdir();}
             try {
                 filename = sha1(blob.getFileConents());

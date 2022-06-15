@@ -70,7 +70,7 @@ public abstract class CommitTreeController implements Serializable {
     // private static CommitTree getTree(){
     // }
     private static void saveTree(CommitTree tree){
-        File outFile = new File(".gitlet"+"/"+"tree");
+        File outFile = new File(".gitlet"+"/"+"Tree");
         try {
             ObjectOutputStream out =
                 new ObjectOutputStream(new FileOutputStream(outFile));
@@ -82,7 +82,7 @@ public abstract class CommitTreeController implements Serializable {
     }
     public static CommitTree getTree(){
         CommitTree obj;
-        File inFile = new File("./.gitlet/tree");
+        File inFile = new File("./.gitlet/Tree");
         try {
             ObjectInputStream inp =
                 new ObjectInputStream(new FileInputStream(inFile));
@@ -109,6 +109,7 @@ public abstract class CommitTreeController implements Serializable {
             stage = StagingAreaController.getStageBlobs(area);
             CommitController.setblobs(newcommit ,(HashMap<String, String>) stage);
             newcommit.setMessage(messString);
+            ///Move 
             try {
                 mytree.getBranches().put(currentbranch, CommitController.sha1_contents(newcommit.getBlobs()));
             } catch (Exception e) {

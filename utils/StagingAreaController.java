@@ -30,6 +30,17 @@ public abstract class StagingAreaController {
         }
         BlobController.stageBlob(stageBlob);
     }
+    public static void unstagefile(StageingArea area, String filename){
+        Blob stageBlob = BlobController.createBlob(filename);
+        try {
+            area.stage(filename,sha1(stageBlob.getFileConents()));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
+        BlobController.stageBlob(stageBlob);
+    }
     public static StageingArea getStageingArea(){
         StageingArea obj;
         File inFile = new File(".gitlet/"+"StageingArea");

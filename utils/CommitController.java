@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -48,6 +50,12 @@ public class CommitController {
         try {
             filename = sha1_contents(commit.getBlobs());
             outFile = new File(commitpath+"/"+filename);
+            if(!new File(".gitlet/Blobs").isDirectory()){
+                new File(".gitlet/Blobs").mkdir();
+            }
+            for (Object move : commit.getBlobs().values().toArray()){
+                Files.move(Paths.get(".gitlet/Stage/"+move ),Paths.get(".gitlet/Blobs/"+move));
+            };
         } catch (Exception e) {
             filename = "init";
             outFile = new File(commitpath+"/"+filename);

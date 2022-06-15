@@ -1,4 +1,6 @@
 package utils.DataStruct;
+import java.io.File;
+import java.io.IOError;
 import java.io.Serializable;
 import java.util.HashMap;
 // The stageing is a commit that is not appended to the tree... can still add files...
@@ -18,7 +20,15 @@ public class StageingArea implements Serializable {
         //check if staged
         //if staged 
         if (this.stagearea.containsKey(file)){
+            File unstage = new File(".gitlet/Stage/"+this.stagearea.get(file));
+            unstage.delete();
             this.stagearea.remove(file);
+            if(stagearea.keySet().toArray().length == 0){
+                File filedir = new File(".gitlet/stage");
+                File stagefile = new File(".gitlet/StageingArea");
+                stagefile.delete();
+                filedir .delete();
+            }
             return 0;
         }
         else{
