@@ -34,7 +34,7 @@ public class BlobController {
             System.out.println("Couldn't do that");
         }
     }
-    public Blob getBlob(String hashcode){
+    public static Blob getBlob(String hashcode){
         Blob obj;
             File inFile = new File("./.gitlet/Blob/"+ hashcode);
             try {

@@ -66,14 +66,30 @@ public class Main {
 
         // code to handle checkout 
             case "checkout":
+            if (args.length ==2 ){
+                CommitTreeController.checkout_file();
+
+            }
+            else if (args.length == 3){
+                // checkout -- [file name]
+                CommitTreeController.checkout_file(args[1], args[3]);
+
+            }
+            else if(args.length ==4){
+                //checkout [commit id] -- [file name]
+                CommitTreeController.checkout_file_from_commit(args[1], args[3]);
+            }
+
             break;
 
         //code to handle branch 
-            case "banch":
+            case "branch":
+            CommitTreeController.branch(args[1]);
             break;
 
         //code to rm-branch 
             case "rm-branch":
+            CommitTreeController.rm_branch(args[1])
             break;
 
         //code to handle reset

@@ -393,29 +393,45 @@ public abstract class CommitTreeController implements Serializable {
 
 
     }
-    public static String checkout_file(String filename){
+    
+    public static void checkout_file(String filename){
         
-        /*
-         * 
+        /* 
          * Usages:
 
         1.java gitlet.Main checkout -- [file name]
         /// if file name exist in head commit 
-         //  
-
-        
-
-        
-
-        Descriptions:
-
         1.
         Takes the version of the file as it exists in the head commit 
         and puts it in the working directory, overwriting the version of 
         the file that’s already there if there is one. 
         The new version of the file is not staged.
          */
-        return "CHECKOUT";
+        CommitTree myTree = CommitTreeController.getTree();
+        if(myTree == null){
+            return;
+        }
+        Commit currentHead =  CommitController.getCommit(myTree.getCurrentBranch());
+        if(! currentHead.getBlobs().containsKey(filename)){
+            return;
+        }
+        File move_file = new File("./"+filename);
+        if (move_file.exists()){
+            move_file.delete();
+        }
+        String file_id = currentHead.getBlobs().get(filename);
+        Blob file_blob = BlobController.getBlob(file_id);
+        try {
+            FileWriter newfile = new FileWriter(move_file);
+            newfile.write(file_blob.getFileConents());
+            newfile.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        
+
     }
     public static String branch(String newBranchName){
         /*
