@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.print.DocFlavor.STRING;
-import javax.swing.tree.TreeNode;
-
+import java.io.FileWriter;
 import utils.DataStruct.Blob;
 import utils.DataStruct.Commit;
 import utils.DataStruct.CommitTree;
@@ -228,14 +225,11 @@ public abstract class CommitTreeController implements Serializable {
          === Branches ===
         *master
         other-branch
-        
         === Staged Files ===
         wug.txt
         wug2.txt
-        
         === Removed Files ===
         goodbye.txt
-        
         === Modifications Not Staged For Commit ===
         junk.txt (deleted)
         wug3.txt (modified)
@@ -308,6 +302,12 @@ public abstract class CommitTreeController implements Serializable {
             }
     }
 
+    public static void removeFilesFromFolder(File folder) {
+        for (File fileEntry : folder.listFiles()) {
+                if(!fileEntry.getName().contains(".java") && !fileEntry.getName().contains(".class") && !fileEntry.getName().contains(".gitlet") && !fileEntry.getName().contains(".git") && !fileEntry.isDirectory())
+                fileEntry.delete();
+        }
+    }
     public static ArrayList<String> listFilesForFolder(File folder) {
         ArrayList<String> files = new ArrayList<String>();
         for (File fileEntry : folder.listFiles()) {
@@ -317,18 +317,95 @@ public abstract class CommitTreeController implements Serializable {
         return files;
     }
     
-    
+    public static void checkout_branch(String branch_name){
+        /* 3.java gitlet.Main checkout [branch name]
+        Takes all files in the commit at the head of the given branch, 
+        and puts them in the working directory, overwriting the versions of
+        the files that are already there if they exist. Also, at the end of this command, 
+        the given branch will now be considered the current branch (HEAD). 
+        Any files that are tracked in the current branch but are not present in the 
+        checked-out branch are deleted. The staging area is cleared, unless the checked-out
+        branch is the current branch (see Failure cases below).
+         */
+        CommitTree myTree  = CommitTreeController.getTree();
+        if (myTree == null){
+            System.out.println("Start a tree.");
+            return;
+        }
+        HashMap<String,String> branches  = myTree.getBranches();
+        if(branches ==null){
+            System.out.println("No Branches");
+            return;
+        }
+        if(branches.containsKey(branch_name)){
+            myTree.setCurrentBranch(branch_name);
+            HashMap<String, String> current_commmit_blobs = CommitController.getCommit(myTree.getCurrentBranch()).getBlobs();
+            removeFilesFromFolder(new File("./"));
+            current_commmit_blobs.forEach((key, value) -> {
+                try {
+                    FileWriter myWriter = new FileWriter(key);
+                    Blob file_blob = BlobController.getBlob(value);
+                    String file_con = file_blob.getFileConents();
+                    myWriter.write(file_con);
+                    myWriter.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                };
+              });
+              if(StagingAreaController.getStageingArea() !=null){
+                StagingAreaController.removeStageingArea();
+              }
+        }
 
-    public static String checkout(){
+    }
+    public static void checkout_file_commit(String commit_id, String filename){
+        /*2.java gitlet.Main checkout [commit id] -- [file name]
+         * Takes the version of the file as it exists in the commit with the given id, 
+         * and puts it in the working directory, overwriting the version of the file that’s
+         * already there if there is one. The new version of the file is not staged.
+         */
+        Commit commit = CommitController.getCommit(commit_id);
+        if(commit == null){
+            return;
+        }
+        HashMap<String, String> commit_blobs  =  commit.getBlobs();
+        if(commit_blobs ==null){
+            return;
+        }
+        if(!commit_blobs.containsKey(filename)){
+            return;
+        }
+        Blob file_blob = BlobController.getBlob(commit_blobs.get(filename));
+
+        try {
+            File check = new File(filename);
+            if(check.exists()){
+                check.delete();
+            }
+            FileWriter myWriter = new FileWriter(new File(filename));
+            myWriter.write(file_blob.getFileConents());
+            myWriter.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+    }
+    public static String checkout_file(String filename){
+        
         /*
          * 
          * Usages:
 
         1.java gitlet.Main checkout -- [file name]
+        /// if file name exist in head commit 
+         //  
 
-        2.java gitlet.Main checkout [commit id] -- [file name]
+        
 
-        3.java gitlet.Main checkout [branch name]
+        
 
         Descriptions:
 
@@ -337,23 +414,10 @@ public abstract class CommitTreeController implements Serializable {
         and puts it in the working directory, overwriting the version of 
         the file that’s already there if there is one. 
         The new version of the file is not staged.
-
-        2.
-        Takes the version of the file as it exists in the commit with the given id, 
-        and puts it in the working directory, overwriting the version of the file that’s
-        already there if there is one. The new version of the file is not staged.
-
-        3. Takes all files in the commit at the head of the given branch, 
-        and puts them in the working directory, overwriting the versions of
-        the files that are already there if they exist. Also, at the end of this command, 
-        the given branch will now be considered the current branch (HEAD). 
-        Any files that are tracked in the current branch but are not present in the 
-        checked-out branch are deleted. The staging area is cleared, unless the checked-out
-         branch is the current branch (see Failure cases below).
          */
         return "CHECKOUT";
     }
-    public static String branch(){
+    public static String branch(String newBranchName){
         /*
         Creates a new branch with the given name, 
         and points it at the current head commit. A branch is nothing more
@@ -361,17 +425,23 @@ public abstract class CommitTreeController implements Serializable {
          This command does NOT immediately switch to the newly created branch (just as in real Git). 
          Before you ever call branch, your code should be running with a default branch called “master”.
          */
-        return "branch";
+        CommitTree myTree  = getTree();
+        myTree.addBranch(newBranchName, myTree.getCurrentBranch());
+        return "";
 
     }
-    public static String rm_branch(){
+    public static String rm_branch(String brachName){
         /*
          Deletes the branch with the given name. This only means 
          to delete the pointer associated with the branch;
          it does not mean to delete all commits that were created
          under the branch, or anything like that.
          */
-        return "branch";
+        CommitTree myTree  = getTree();
+        if(myTree.getBranches().values().contains(brachName)){
+            myTree.removeBranch(brachName);
+        }
+        return "";
 
     }
     public static String reset(){
