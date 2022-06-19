@@ -189,6 +189,22 @@ public abstract class CommitTreeController implements Serializable {
         }
         return;
     }
+    public static void global_log(){
+        File commitDir = new File(".gitlet/Commit");
+        if (!commitDir.isDirectory()){
+            System.out.println("No commits");
+        }
+        else{
+            ArrayList<String> commits = listFilesForFolder(commitDir);
+            commits.forEach((commit)->{
+                Commit currComm = CommitController.getCommit(commit);
+                System.out.println("commit "+ commit);
+                System.out.println(currComm.getDate());
+                System.out.println("\t"+ currComm.getMessage());
+                System.out.println();
+            });
+        }
+    }
     public static String find(String mess){
         Commit currCommit;
         CommitTree myTree;

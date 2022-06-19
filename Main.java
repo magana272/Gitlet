@@ -51,7 +51,7 @@ public class Main {
                 return;
             // code to handle global-log
             case "global-log":
-
+                CommitTreeController.global_log();
             break;
 
         //code to handle find
