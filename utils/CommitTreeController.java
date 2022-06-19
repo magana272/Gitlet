@@ -302,6 +302,13 @@ public abstract class CommitTreeController implements Serializable {
             }
     }
 
+    public static void deletefile(String filename){
+            File check  = new File(filename);
+            if (check.exists()){
+                check.delete();
+            }
+    }
+
     public static void removeFilesFromFolder(File folder) {
         for (File fileEntry : folder.listFiles()) {
                 if(!fileEntry.getName().contains(".java") && !fileEntry.getName().contains(".class") && !fileEntry.getName().contains(".gitlet") && !fileEntry.getName().contains(".git") && !fileEntry.isDirectory())
@@ -317,6 +324,20 @@ public abstract class CommitTreeController implements Serializable {
         return files;
     }
     
+    public static Boolean check_untracked(String dir){
+       CommitTree myTree = CommitTreeController.getTree();
+       Commit commit_branch = CommitController.getCommit(myTree.getBranches().get(myTree.getCurrentBranch()));
+       HashMap<String, String>commit_files = commit_branch.getBlobs();
+       ArrayList<String> files= listFilesForFolder(new File (dir));
+       for(String file : files){
+           System.out.println(file);
+            if(!commit_files.containsKey(file)){
+
+            return false;
+            }
+        }
+       return true;
+    }
     public static void checkout_branch(String branch_name){
         /* 3.java gitlet.Main checkout [branch name]
         Takes all files in the commit at the head of the given branch, 
@@ -329,7 +350,7 @@ public abstract class CommitTreeController implements Serializable {
          */
         CommitTree myTree  = CommitTreeController.getTree();
         if (myTree == null){
-            System.out.println("Start a tree.");
+            System.out.println("Start a tree. 'java Main init");
             return;
         }
         HashMap<String,String> branches  = myTree.getBranches();
@@ -337,9 +358,16 @@ public abstract class CommitTreeController implements Serializable {
             System.out.println("No Branches");
             return;
         }
+        Boolean untrackfile =  check_untracked("./");
+        if(!untrackfile){
+            System.out.println("There is an untracked file in the way; delete it or add it first.");
+            return;
+        }
+
+
         if(branches.containsKey(branch_name)){
             myTree.setCurrentBranch(branch_name);
-            HashMap<String, String> current_commmit_blobs = CommitController.getCommit(myTree.getCurrentBranch()).getBlobs();
+            HashMap<String, String> current_commmit_blobs = CommitController.getCommit(myTree.getBranches().get(myTree.getCurrentBranch())).getBlobs();
             removeFilesFromFolder(new File("./"));
             current_commmit_blobs.forEach((key, value) -> {
                 try {
@@ -356,7 +384,10 @@ public abstract class CommitTreeController implements Serializable {
               if(StagingAreaController.getStageingArea() !=null){
                 StagingAreaController.removeStageingArea();
               }
+              myTree.setCurrentBranch(branch_name);
+              CommitTreeController.saveTree(myTree);
         }
+       
 
     }
     public static void checkout_file_commit(String commit_id, String filename){
@@ -367,13 +398,15 @@ public abstract class CommitTreeController implements Serializable {
          */
         Commit commit = CommitController.getCommit(commit_id);
         if(commit == null){
+            System.out.print("Commit does not exist.");
             return;
         }
         HashMap<String, String> commit_blobs  =  commit.getBlobs();
         if(commit_blobs ==null){
-            return;
+            return ;
         }
         if(!commit_blobs.containsKey(filename)){
+            System.out.println("File does not exist in that commit.");
             return;
         }
         Blob file_blob = BlobController.getBlob(commit_blobs.get(filename));
@@ -411,8 +444,9 @@ public abstract class CommitTreeController implements Serializable {
         if(myTree == null){
             return;
         }
-        Commit currentHead =  CommitController.getCommit(myTree.getCurrentBranch());
-        if(! currentHead.getBlobs().containsKey(filename)){
+        Commit currentHead =  CommitController.getCommit(myTree.getBranches().get(myTree.getCurrentBranch()));
+        if(!currentHead.getBlobs().containsKey(filename)){
+            System.out.println("File does not exist in that commit.");
             return;
         }
         File move_file = new File("./"+filename);
@@ -442,7 +476,8 @@ public abstract class CommitTreeController implements Serializable {
          Before you ever call branch, your code should be running with a default branch called “master”.
          */
         CommitTree myTree  = getTree();
-        myTree.addBranch(newBranchName, myTree.getCurrentBranch());
+        myTree.addBranch(newBranchName,myTree.getBranches().get(myTree.getCurrentBranch()));
+        CommitTreeController.saveTree(myTree);
         return "";
 
     }
@@ -456,11 +491,13 @@ public abstract class CommitTreeController implements Serializable {
         CommitTree myTree  = getTree();
         if(myTree.getBranches().values().contains(brachName)){
             myTree.removeBranch(brachName);
+            CommitTreeController.saveTree(myTree);
+
         }
         return "";
 
     }
-    public static String reset(){
+    public static void reset(String commitid){
         /*
          * Checks out all the files tracked by the given commit. Removes tracked files
          *  that are not present in that commit. Also moves the current branch’s head 
@@ -468,13 +505,172 @@ public abstract class CommitTreeController implements Serializable {
          * the head pointer after using reset. The [commit id] may be abbreviated as
          *  for checkout. The staging area is cleared. The command is essentially checkout 
          * of an arbitrary commit that also changes the current branch head.
+         * 
+         * 
          */
-        return "branch";
+        Commit commit = CommitController.getCommit(commitid);
+        CommitTree myTree  = CommitTreeController.getTree();
+        if(myTree == null){
+            System.out.println("Gitlet doesn't esit: please use 'gitlet init'");
+        }
+        if (commit ==null){
+            System.out.println("No Commit with that name exist");
+            return;
+        }
+        else{
+            removeFilesFromFolder(new File("./"));
+            HashMap<String, String> current_commmit_blobs = CommitController.getCommit(myTree.getBranches().get(myTree.getCurrentBranch())).getBlobs();
+            current_commmit_blobs.forEach((key, value) -> {
+                try {
+                    FileWriter myWriter = new FileWriter(key);
+                    Blob file_blob = BlobController.getBlob(value);
+                    String file_con = file_blob.getFileConents();
+                    myWriter.write(file_con);
+                    myWriter.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                };
+              });
+              if(StagingAreaController.getStageingArea() !=null){
+                StagingAreaController.removeStageingArea();
+              }
+            
+        }        
+        return;
     }
-    public static String merge(){
+    public static void merge(String branch_name){
         /* Merges files from the given branch into the current branch.*/
-        return  "merge";
+        CommitTree myTree = CommitTreeController.getTree();
+        HashMap<String,String> bran =  myTree.getBranches();
+        if(!bran.containsKey(branch_name)){
+            System.out.println("No Branch with that name");
+        }
+        else if(myTree.getCurrentBranch() == branch_name ){
+            System.out.println("Cannot merge a branch with itself.");
+        }
+        else{
+            String splitpoint =  Find_Split(myTree.getBranches().get(myTree.getCurrentBranch()),myTree.getBranches().get(branch_name));
+            if(splitpoint == myTree.getBranches().get(myTree.getCurrentBranch())){
+                System.out.println("Given branch is an ancestor of the current branch.");
+            }
+            else{
+                Commit Splitpoint_Commit =  CommitController.getCommit(splitpoint);
+                Commit currCommit = CommitController.getCommit(bran.get(myTree.getCurrentBranch()));
+                Commit branchCommit  = CommitController.getCommit(bran.get(branch_name));
+                File folder = new File("./");
+                ArrayList<String> files_curr  = listFilesForFolder(folder);
+                HashMap<String, String> blobs_at_split = Splitpoint_Commit.getBlobs();
+                HashMap<String, String> blobs_at_current_commit = currCommit.getBlobs();
+                HashMap<String, String> blobs_at_branch_commit = branchCommit.getBlobs();
+                HashSet<String> unique_file = new HashSet<String>();
+                blobs_at_split.keySet().forEach((key)-> {
+                    unique_file.add(key);
+                });
+                blobs_at_current_commit.keySet().forEach((key)-> {
+                    unique_file.add(key);
+                });
+                blobs_at_branch_commit.keySet().forEach((key)-> {
+                    unique_file.add(key);
+                });
+                for(String file: unique_file){
+                    
+                    if (blobs_at_split.containsKey(file) && blobs_at_current_commit.containsKey(file) && blobs_at_branch_commit.containsKey(file)){
+                        ///1.
+                        if((blobs_at_current_commit.get(file)== blobs_at_split.get(file)) && blobs_at_branch_commit.get(file) != blobs_at_split.get(file)){
+                            checkout_file_commit(myTree.getBranches().get(branch_name), file);
+                            add(file);
+                        }
+                        // 2.
+                        else if ((blobs_at_current_commit.get(file) != blobs_at_split.get(file)) && blobs_at_branch_commit.get(file) == blobs_at_split.get(file)){
+                            //don't do anything
+                        }
+                        // 3.
+                        else if ((blobs_at_current_commit.get(file) != blobs_at_branch_commit.get(file)) && (blobs_at_current_commit.get(file) != blobs_at_split.get(file)) &&blobs_at_branch_commit.get(file) != blobs_at_split.get(file)){
+                            // don't do anything 
+                        }
+
+                    }
+
+                    // 4.Any files that were not present at the split point and are present only in the 
+                    // current branch should remain as they are.
+                    else if((!blobs_at_split.containsKey(file)) && (blobs_at_current_commit.containsKey(file)) && (!blobs_at_branch_commit.containsKey(file))){
+                        /// don't do anything file should be kept the same
+                    }
+                    // 5.Any files that were not present at the split point and are present only in the 
+                    // given branch should be checked out and staged.
+                    else if((!blobs_at_split.containsKey(file)) && (!blobs_at_current_commit.containsKey(file)) && (blobs_at_branch_commit.containsKey(file))){
+                        checkout_file_commit(myTree.getBranches().get(branch_name), file);
+                        add(file);}
+
+                    // 6.Any files present at the split point, unmodified in the current branch, and 
+                    // absent in the given branch should be removed (and untracked).    
+                    else if(blobs_at_split.containsKey(file) && blobs_at_current_commit.containsKey(file) && !blobs_at_branch_commit.containsKey(file) && blobs_at_split.get(file)==blobs_at_current_commit.get(file)){
+                        rm(file);
+                    }
+                    else if(blobs_at_split.containsKey(file) && !blobs_at_current_commit.containsKey(file) && blobs_at_branch_commit.containsKey(file) && blobs_at_split.get(file)== blobs_at_branch_commit.get(file)){
+                        // file remain absent
+                    }
+                    else if(blobs_at_current_commit.containsKey(file) && blobs_at_branch_commit.containsKey(file) && (blobs_at_current_commit.get(file) != blobs_at_branch_commit.get(file))){
+  
+                        deletefile(file);
+                        Blob current_file = BlobController.getBlob(blobs_at_current_commit.get(file));
+                        Blob branch_file  = BlobController.getBlob(blobs_at_branch_commit.get(file));
+                        FileWriter fw;
+                        try {
+                            fw = new FileWriter(file);
+                            fw.write("<<<<<<< HEAD\n"+current_file.getFileConents()+"in current"+myTree.getCurrentBranch()+"\n=======\n"+branch_file.getFileConents()+branch_name+"\n>>>>>>>\n");
+                            fw.close();
+
+                        } catch (IOException e1) {
+                            //fiel
+                            e1.printStackTrace();
+                    }
+                }
+                commit("Merge " +branch_name +"into " + myTree.getCurrentBranch());
+            }
+        }
     }
+}
+
+
+
+            // 7.Any files present at the split point, unmodified in the given branch, and absent in 
+            // the current branch should remain absent.
+
+            // 8.Any files modified in different ways in the current and given branches are in conflict.
+            // “Modified in different ways” can mean that the contents of both are changed and different 
+            // from other, or the contents of one are changed and the other file is deleted, or the file was
+            // absent at the split point and has different contents in the given and current branches. 
+            // In this case, replace the contents of the conflicted file with
+
+
+
+
+
+
+
+    public static String Find_Split(String curcommitid, String branchid)
+    {
+        // define hashset
+        HashSet<String> hs = new HashSet<String>();
+        while (curcommitid != null) {
+            hs.add(curcommitid);
+            curcommitid = CommitController.getCommit(curcommitid).getPrev();
+        }
+        while (branchid!= null) {
+            if (hs.contains(branchid)) {
+                return branchid;
+            }
+            branchid = CommitController.getCommit(branchid).getPrev();
+        }
+        return null;
+    }
+
+
+
+
+
     public static String sha1(Object object) throws Exception {
         if (object == null) {
             throw new Exception("Object is null.");

@@ -1,8 +1,0 @@
-rm -r .gitlet && rm ./*.class utils/*.class utils/DataStruct/*.class 
-javac ./*.java utils/*.java utils/DataStruct/*.java
-java Main init
-java Main add test.txt
-java Main commit -m "test"
-java Main log 
-java Main find test
-java Main status
